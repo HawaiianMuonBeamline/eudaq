@@ -9,6 +9,7 @@ set(EUDAQ_INCLUDE_DIRS
 
 include_directories(include)
 include_directories(include/eudaq)
+#include_directories(/home/belle2/Downloads/root/include/)
 
 aux_source_directory(src CORE_SRC)
 add_library(${EUDAQ_CORE_LIBRARY} SHARED ${CORE_SRC})
@@ -21,6 +22,9 @@ endif()
 
 list(APPEND ADDITIONAL_LIBRARIES ${CMAKE_DL_LIBS})
 target_link_libraries(${EUDAQ_CORE_LIBRARY} ${EUDAQ_THREADS_LIB} ${ADDITIONAL_LIBRARIES})
+file(GLOB root_lib "/home/belle2/Downloads/root/lib/*.so")
+#target_link_libraries(${EUDAQ_CORE_LIBRARY} ${root_lib})
+
 target_include_directories(${EUDAQ_CORE_LIBRARY} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
 
 install(TARGETS ${EUDAQ_CORE_LIBRARY}

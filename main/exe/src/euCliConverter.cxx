@@ -34,6 +34,8 @@ int main(int /*argc*/, const char **argv) {
     type_in = "native";
   if(type_out=="raw")
     type_out = "native";
+  if(type_out=="root")
+    type_out = "TTree";
   
   eudaq::FileReaderUP reader;
   eudaq::FileWriterUP writer;

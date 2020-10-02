@@ -8,6 +8,7 @@
 #include "TKey.h"
 
 // required for object-specific "clear"
+#include "TObjString.h"
 #include "TGraph.h"
 #include "TGraph2D.h"
 #include "TH1.h"

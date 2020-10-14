@@ -2,12 +2,22 @@
 # load binary lib/pyeudaq.so
 import sys
 
-sys.path.append("/home/belle2/Documents/github/eudaq/lib")
+
 import pyeudaq
 import time
 import os
 from distutils.util import strtobool
 from inspect import currentframe, getframeinfo
+
+eudaq_home_folder               =  "/home/belle2/Documents/github/eudaq/tmp"
+
+udp_run                         =  eudaq_home_folder + "/udp_run.py"
+configCSV                       =  eudaq_home_folder + "/roling_register_tb.csv"
+configCSV_HWout                 =  eudaq_home_folder + "/roling_register_tb_out_HW.csv"
+roling_register_tb_csv_header   =  eudaq_home_folder + "/roling_register_tb_csv_header.txt"
+tx_triggerbitmonitor_top_out_HW =  eudaq_home_folder + "/tx_triggerbitsz_top_out_HW.csv"
+tx_triggerbitmonitor_top        =  eudaq_home_folder + "/tx_triggerbitsz_top.csv"
+tx_triggerbitsz_top_header      =  eudaq_home_folder + "/tx_triggerbitsz_top_header.txt"
 
 def get_content(fileName):
     with open(fileName) as f:
@@ -139,13 +149,6 @@ class SCROD_registers:
         return ret
 
 
-udp_run                         =  "/home/rpeschke/Documents/eudaq/udp_run.py"
-configCSV                       =  "/home/rpeschke/Documents/eudaq/roling_register_tb.csv"
-configCSV_HWout                 =  "/home/rpeschke/Documents/eudaq/roling_register_tb_out_HW.csv"
-roling_register_tb_csv_header   =  "/home/rpeschke/Documents/eudaq/roling_register_tb_csv_header.txt"
-tx_triggerbitmonitor_top_out_HW =  "/home/rpeschke/Documents/eudaq//tx_triggerbitsz_top_out_HW.csv"
-tx_triggerbitmonitor_top        =  "/home/rpeschke/Documents/eudaq//tx_triggerbitsz_top.csv"
-tx_triggerbitsz_top_header      =  "/home/rpeschke/Documents/eudaq//tx_triggerbitsz_top_header.txt"
 
 class DATA_sender:
     def __init__(self,IP,Port,path,header):
@@ -182,8 +185,8 @@ class ExamplePyProducer(pyeudaq.Producer):
     def __init__(self, name, runctrl):
         pyeudaq.Producer.__init__(self, 'PyProducer', name, runctrl)
         self.is_running = 0
-        self.config_sender = DATA_sender(IP="192.168.1.20", Port="2000", path="/home/rpeschke/Documents/eudaq/" , header=roling_register_tb_csv_header)
-        self.data_sender   = DATA_sender(IP="192.168.1.33", Port="2001", path="/home/rpeschke/Documents/eudaq/" , header= "tx_triggerbitmonitor_top_header.txt")
+        self.config_sender = DATA_sender(IP="192.168.1.20", Port="2000", path=eudaq_home_folder , header=roling_register_tb_csv_header)
+        self.data_sender   = DATA_sender(IP="192.168.1.33", Port="2001", path=eudaq_home_folder , header= "tx_triggerbitmonitor_top_header.txt")
         self.Sync = None
         
 
@@ -208,7 +211,7 @@ class ExamplePyProducer(pyeudaq.Producer):
 
             
         print ('DoConfigure')
-        fileName = self.GetConfigItemOrDefault( "fileSynchronizer.fileName",  "/home/rpeschke/Documents/eudaq/sync.txt") 
+        fileName = self.GetConfigItemOrDefault( "fileSynchronizer.fileName",  eudaq_home_folder + "/sync.txt") 
         Position = int(self.GetConfigItemOrDefault( "fileSynchronizer.Position",  "0" ) )
         isLast = int(self.GetConfigItemOrDefault( "fileSynchronizer.isLast",  "1" ) )
         print(fileName, Position,isLast)
@@ -217,14 +220,14 @@ class ExamplePyProducer(pyeudaq.Producer):
 
         self.config_sender.IP      =  self.GetConfigItemOrDefault( "config_sender.IP",     "192.168.1.20") 
         self.config_sender.Port    =  self.GetConfigItemOrDefault( "config_sender.Port",   "2000") 
-        self.config_sender.path    =  self.GetConfigItemOrDefault( "config_sender.path",   "/home/rpeschke/Documents/eudaq/") 
-        self.config_sender.header  =  self.GetConfigItemOrDefault( "config_sender.header", "/home/rpeschke/Documents/eudaq/roling_register_tb_csv_header.txt") 
+        self.config_sender.path    =  self.GetConfigItemOrDefault( "config_sender.path",   eudaq_home_folder) 
+        self.config_sender.header  =  self.GetConfigItemOrDefault( "config_sender.header", eudaq_home_folder + "/roling_register_tb_csv_header.txt") 
         
 
 
         self.data_sender.IP      =  self.GetConfigItemOrDefault( "data_sender.IP",     "192.168.1.33") 
         self.data_sender.Port    =  self.GetConfigItemOrDefault( "data_sender.Port",   "2001") 
-        self.data_sender.path    =  self.GetConfigItemOrDefault( "data_sender.path",   "/home/rpeschke/Documents/eudaq/") 
+        self.data_sender.path    =  self.GetConfigItemOrDefault( "data_sender.path",   eudaq_home_folder ) 
         self.data_sender.header  =  self.GetConfigItemOrDefault( "data_sender.header", tx_triggerbitsz_top_header) 
 
 

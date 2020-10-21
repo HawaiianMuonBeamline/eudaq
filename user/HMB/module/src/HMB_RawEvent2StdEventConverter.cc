@@ -86,8 +86,8 @@ bool convert_string(eudaq::EventSPC d1, eudaq::StdEventSP d2, eudaq::ConfigSPC c
   std::string block (b.begin() ,b.end() );
   //std::cout << block << std::endl;
 
-  eudaq::StandardPlane plane(0, "sub_name", "sub_name");
-  eudaq::StandardPlane plane_raw(1, "sub_name", "sub_name");
+  eudaq::StandardPlane plane(0, "HMB", "HMB");
+  eudaq::StandardPlane plane_raw(1, "HMB", "HMB");
   plane.SetSizeZS(20, 12, 0);
   plane_raw.SetSizeZS(20, 12, 0);
   
@@ -192,8 +192,8 @@ bool Convert_bit(eudaq::EventSPC d1, eudaq::StdEventSP d2, eudaq::ConfigSPC conf
   auto currentData  = std::vector<int16_t>(block, block + b.size()/2 );
   auto producerID = block[1];
 
-  eudaq::StandardPlane plane(2+10*producerID, "sub_name" +std::to_string(producerID), "sub_name" +std::to_string(producerID));
-  eudaq::StandardPlane plane_raw(3+10*producerID, "sub_name"+std::to_string(producerID), "sub_name"+std::to_string(producerID));
+  eudaq::StandardPlane plane(2+10*producerID, "HMB", "HMB");
+  eudaq::StandardPlane plane_raw(3+10*producerID, "HMB", "HMB");
   plane.SetSizeZS(20, 12, 0);
   plane_raw.SetSizeZS(20, 12, 0);
 

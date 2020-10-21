@@ -1,0 +1,5 @@
+ExamplePyDataCollector.py
+ExamplePyProducer.py
+setup_eudaq.sh
+startRun_ExPy.sh
+test.txt

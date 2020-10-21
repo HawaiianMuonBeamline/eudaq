@@ -123,9 +123,14 @@ class TargetXRegisters:
         for i in range(17):
             k =  prefix+ ".Channel_" + str(i).zfill(2) 
         #    print(k)
-            self.conf.append(registerEntry( (ASIC_number <<7) + i*2, Config.GetConfigItemOrDefault(k, None) ,Offset ))
+            self.conf.append(registerEntry( (ASIC_number <<7) + (i-1)*2, Config.GetConfigItemOrDefault(k, None) ,Offset ))
 
 
+        HV_Offset = int(Config.GetConfigItemOrDefault( "HV_global" ,"0"))
+        for i in range(17):
+            k =  prefix+ ".HV_" + str(i).zfill(2) 
+        #    print(k)
+            self.conf.append(registerEntry( (0xC0 <<8) + (ASIC_number << 4) + i , Config.GetConfigItemOrDefault(k, "0" ) ,HV_Offset ))
 
     def __str__(self):
         ret = ""

@@ -1,0 +1,1 @@
+Header; Nr_of_streams; recording TimeStamp; Operation; Number of packets; packateNr; Sending TimeStamp; TX_Valid; TX_Last; TX_Address; TX_Value; RX_LAST; RX_valid; RX_Address; RX_VALUE; Dummy; Tail

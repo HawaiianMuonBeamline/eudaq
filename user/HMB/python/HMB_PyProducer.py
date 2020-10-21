@@ -281,7 +281,7 @@ class ExamplePyProducer(pyeudaq.Producer):
             print ("Start 222")
              
             print ("Start 333")
-            trigger_n = 0;
+            trigger_n = 0
              
             while(self.is_running):
  
@@ -299,7 +299,7 @@ class ExamplePyProducer(pyeudaq.Producer):
 
                  
                 #print(data)
-                ev = pyeudaq.Event("RawEvent", "sub_name")
+                ev = pyeudaq.Event("RawEvent", "HMB_Event")
                 ev.SetTriggerN(trigger_n)
                 #block = bytes(r'raw_data_string')
                 #ev.AddBlock(0, block)
@@ -384,8 +384,8 @@ class ExamplePyProducer(pyeudaq.Producer):
 import argparse
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='KLM producer')
-    parser.add_argument('--name', help='Name of the KLM producer',default="klmproducer1")
+    parser = argparse.ArgumentParser(description='HMB producer')
+    parser.add_argument('--name', help='Name of the HMB producer',default="HMB_producer1")
     args = parser.parse_args()
 
     myproducer = ExamplePyProducer(args.name, "tcp://localhost:44000")

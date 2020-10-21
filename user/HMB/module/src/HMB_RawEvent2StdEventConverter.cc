@@ -3,15 +3,15 @@
 #include <iostream>
 #include "eudaq/Utils.hh"
 
-class Ex0RawEvent2StdEventConverter: public eudaq::StdEventConverter{
+class HMB_RawEvent2StdEventConverter: public eudaq::StdEventConverter{
 public:
   bool Converting(eudaq::EventSPC d1, eudaq::StdEventSP d2, eudaq::ConfigSPC conf) const override;
-  static const uint32_t m_id_factory = eudaq::cstr2hash("sub_name");
+  static const uint32_t m_id_factory = eudaq::cstr2hash("HMB_Event");
 };
 
 namespace{
   auto dummy0 = eudaq::Factory<eudaq::StdEventConverter>::
-    Register<Ex0RawEvent2StdEventConverter>(Ex0RawEvent2StdEventConverter::m_id_factory);
+    Register<HMB_RawEvent2StdEventConverter>(HMB_RawEvent2StdEventConverter::m_id_factory);
 }
 
 void safe_push_on_plane( eudaq::StandardPlane& pl, unsigned x,unsigned y,double charge, int64_t ts = 0){
@@ -214,7 +214,7 @@ bool Convert_bit(eudaq::EventSPC d1, eudaq::StdEventSP d2, eudaq::ConfigSPC conf
   return true;
 
 }
-bool Ex0RawEvent2StdEventConverter::Converting(eudaq::EventSPC d1, eudaq::StdEventSP d2, eudaq::ConfigSPC conf) const{
+bool HMB_RawEvent2StdEventConverter::Converting(eudaq::EventSPC d1, eudaq::StdEventSP d2, eudaq::ConfigSPC conf) const{
   
 
     convert_string(d1,d2, conf);

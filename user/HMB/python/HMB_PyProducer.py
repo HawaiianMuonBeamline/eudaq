@@ -38,8 +38,19 @@ class fileSynchronizer:
 
 
     def isReady(self):
-        if int(get_content(self.fileName)) != self.position:
+        #print("isReady(self)")
+        num = 100
+        try:
+            #print("isReady(self)  int(get_content(self.fileName))")
+            num = int(get_content(self.fileName))
+        except:
+            #print("isReady(self) return False")
             return False
+
+        if num != self.position:
+            #print("isReady(self) return False")
+            return False
+        #print("isReady(self) return True")
         return True
         
     def SetToDone(self):
@@ -101,6 +112,14 @@ def load_data(fileName):
     with open(fileName) as f:
         return f.read()
 
+def to_val(str_in, offset):
+    if str_in is None:
+        return None
+    s_index = str_in.lower().find("fixed")
+    if s_index>=0:
+        offset=0
+        return int(str_in[:s_index]) 
+    return int(str_in) + int(offset)
 
 class TargetXRegisters:
 
@@ -122,8 +141,11 @@ class TargetXRegisters:
         #print(Offset)
         for i in range(17):
             k =  prefix+ ".Channel_" + str(i).zfill(2) 
-        #    print(k)
-            self.conf.append(registerEntry( (ASIC_number <<7) + (i-1)*2, Config.GetConfigItemOrDefault(k, None) ,Offset ))
+            threshold = Config.GetConfigItemOrDefault(k, None)
+            thr = to_val(threshold,Offset)
+            print(k, threshold)
+            
+            self.conf.append(registerEntry( (ASIC_number <<7) + (i-1)*2, thr ,0 ))
 
 
         HV_Offset = int(Config.GetConfigItemOrDefault( "HV_global" ,"0"))
@@ -146,6 +168,10 @@ class SCROD_registers:
         self.conf.append(registerEntry( 4180 , Config.GetConfigItemOrDefault( "TriggerBitMask", 4)) )
         self.conf.append(registerEntry( 4181 , Config.GetConfigItemOrDefault( "TriigerBitSwitch", 1)) )
         self.conf.append(registerEntry( 4182 , Config.GetConfigItemOrDefault( "trigger_maxCount", 400)) )
+        self.conf.append(registerEntry( 4184 , Config.GetConfigItemOrDefault( "trigger_ASIC", 8)) )
+        self.conf.append(registerEntry( 4185 , Config.GetConfigItemOrDefault( "trigger_ASIC_mask", 15)) )
+        self.conf.append(registerEntry( 4186 , Config.GetConfigItemOrDefault( "trigger_time_window", 1000)) )
+        self.conf.append(registerEntry( 4187 , Config.GetConfigItemOrDefault( "no_trigger", 0)) )
 
     def __str__(self):
         ret = ""
@@ -184,6 +210,9 @@ class DATA_sender:
 
     def __call__(self, inputFile,OutputFile):
         self.send_data(inputFile,OutputFile)
+
+
+
 
 
 class ExamplePyProducer(pyeudaq.Producer):
@@ -272,15 +301,30 @@ class ExamplePyProducer(pyeudaq.Producer):
         print ('DoReset')
         self.is_running = 0
 
+    def send_save(self, ev,trigger_n):
+        #print ("Start 1071a")
+        try:
+            #print ("Start 1071b")
+            self.SendEvent(ev)
+            #print ("Start 1071c")
+        except:
+            #print ("Start 1071d")
+            ev = pyeudaq.Event("RawEvent", "HMB_Event")
+            #print ("Start 1071e")
+            ev.SetTriggerN(trigger_n)
+            #print ("Start 1071f")
+            
+            self.SendEvent(ev)  
+
     def RunLoop(self):
         try:
             frameinfo = getframeinfo(currentframe())
-            print ("Start 123")
+            #print ("Start 123")
              
             print ("Start of RunLoop in ExamplePyProducer")
-            print ("Start 222")
+            #print ("Start 222")
              
-            print ("Start 333")
+            #print ("Start 333")
             trigger_n = 0
              
             while(self.is_running):
@@ -289,7 +333,7 @@ class ExamplePyProducer(pyeudaq.Producer):
                 if not self.Sync.isReady():
                     time.sleep(1)
                     continue
-                print ("Start 555")
+                #print ("Start 555")
                  
                 self.data_sender(tx_triggerbitmonitor_top, tx_triggerbitmonitor_top_out_HW)
 
@@ -329,57 +373,63 @@ class ExamplePyProducer(pyeudaq.Producer):
                     colloumns = row.split(';')
                     if len(colloumns)< 28:
                         break
-                    print(666)
+                    
                     block2 += (7000).to_bytes(2, byteorder='little')
-                    print(667)
                     data_int = int(colloumns[10])
-                    print(668)
                     block2 += (data_int).to_bytes(8, byteorder='little')
-                    print(669)
+
                     block2 += (7001).to_bytes(2, byteorder='little')
-                    print(670)
                     data_int = int(colloumns[11])
-                    print(671)
                     block2 += (data_int).to_bytes(8, byteorder='little')
-                    print(672)
+
+                    #print( "ts ", int(colloumns[10]) , int(colloumns[11]) )
+                    t = [int(colloumns[10]) , int(colloumns[11])]
+                    hasdata = False
+
                     for i in range(12,20):
-                        #raw
-                        print(673, colloumns[i])
+
                         data_int = int(colloumns[i])
+                        t.append(data_int)
                         if data_int > 0:
                             block2 += int(5000 +i  - 11 ).to_bytes(2, byteorder='little')
                             block2 += int(data_int).to_bytes(2, byteorder='little')
-                    print(777)
+                    
 
                     for i in range(20,29):
                         #edge Detected
                         
                         data_int = int(colloumns[i])
+                        t.append(data_int)
                         if data_int > 0:
+                            hasdata = True
                             block2 += int(6000 +i - 20 ).to_bytes(2, byteorder='little')
                             block2 += int(data_int).to_bytes(2, byteorder='little')
-                    print(888)
+                    
+                    if hasdata:
+                        print(t)
 
 
                  
 #                print(block2)
-                print ("Start 1060")
+
                 block2 += (4444).to_bytes(2, byteorder='little')
                 ev.AddBlock(1, block2)
-                print ("Start 1070")
+
                 #print(ev)
                 
-                self.SendEvent(ev)
+                self.send_save(ev,trigger_n=trigger_n)
+
                 trigger_n += 1
+
                 self.Sync.SetToDone()
+                print ("Start 1073")
                 #time.sleep(1)
             print ("End of RunLoop in ExamplePyProducer")
 
-        except e:
-            print ("Start 1080")
-            print(e)
+
         except:
-            print ("Start 1090")
+            print ("except")
+
 
 import argparse
 

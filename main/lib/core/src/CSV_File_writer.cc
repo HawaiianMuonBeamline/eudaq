@@ -59,7 +59,7 @@ void CSV_FileWriter::WriteEvent(eudaq::EventSPC ev) {
     std::cout << f_name << std::endl;
 
     out = std::make_shared<std::ofstream>(f_name);
-    *out << "RunNumber; EventNumber; PlaneID; x; y; Charge; TimeStamp\n";
+    *out << "RunNumber;EventNumber;PlaneID;x;y;Charge;TimeStamp\n";
     m_run_n = run_n;
 
   }

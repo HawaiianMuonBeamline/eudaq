@@ -29,37 +29,37 @@ void safe_push_on_plane( eudaq::StandardPlane& pl, unsigned x,unsigned y,double 
 }
 
 
-void push_data2plane(eudaq::StandardPlane& pl,  uint32_t y_raw ,  int32_t  data, int64_t ts = 0){
+void push_data2plane(eudaq::StandardPlane& pl,  uint32_t y_raw ,  int32_t  data, int64_t ts = 0,double charge=1.0){
       if(data < 16 && data >0 ) {
       //  std::cout <<  "1 " <<std::endl;
         
         //std::cout << e << "; " << y << "; "<< data.size()<< std::endl;
-        safe_push_on_plane(pl, data , y_raw , 1.0,ts);
+        safe_push_on_plane(pl, data , y_raw , charge,ts);
        // std::cout << "2" <<std::endl;
       }else {
         if( data & 1 ){
-          safe_push_on_plane(pl, 1 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl, 2 , y_raw , 1.0, ts);
-          safe_push_on_plane(pl, 3 , y_raw , 1.0, ts);
-          safe_push_on_plane(pl, 4 , y_raw , 1.0, ts);
+          safe_push_on_plane(pl, 1 , y_raw ,100+charge,ts);
+          safe_push_on_plane(pl, 2 , y_raw ,100+charge, ts);
+          safe_push_on_plane(pl, 3 , y_raw ,100+charge, ts);
+          safe_push_on_plane(pl, 4 , y_raw ,100+charge, ts);
         } 
        if(data & 2){
-          safe_push_on_plane(pl,  5 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl,  6 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl,  7 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl,  8 , y_raw , 1.0,ts);
+          safe_push_on_plane(pl,  5 , y_raw ,100+ charge,ts);
+          safe_push_on_plane(pl,  6 , y_raw ,100+ charge,ts);
+          safe_push_on_plane(pl,  7 , y_raw ,100+ charge,ts);
+          safe_push_on_plane(pl,  8 , y_raw ,100+ charge,ts);
         } 
         if(data & 4){
-          safe_push_on_plane(pl,  9 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl,  10 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl,  11 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl,  12 , y_raw , 1.0,ts);
+          safe_push_on_plane(pl,  9 , y_raw , 100+charge,ts);
+          safe_push_on_plane(pl,  10 , y_raw ,100+charge,ts);
+          safe_push_on_plane(pl,  11 , y_raw ,100+charge,ts);
+          safe_push_on_plane(pl,  12 , y_raw ,100+charge,ts);
         } 
         if(data & 8){
-          safe_push_on_plane(pl,  13 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl,  14 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl,  15 , y_raw , 1.0,ts);
-          safe_push_on_plane(pl,  16 , y_raw , 1.0,ts);
+          safe_push_on_plane(pl,  13 , y_raw ,100+ charge,ts);
+          safe_push_on_plane(pl,  14 , y_raw ,100+ charge,ts);
+          safe_push_on_plane(pl,  15 , y_raw ,100+ charge,ts);
+          safe_push_on_plane(pl,  16 , y_raw ,100+ charge,ts);
         }
       }
 
@@ -147,10 +147,10 @@ bool convert_string(eudaq::EventSPC d1, eudaq::StdEventSP d2, eudaq::ConfigSPC c
 
 }
 
-std::map<int,std::vector<int16_t>> g_old_data;
+std::map<int,std::vector<std::vector<int16_t>>> g_old_data;
 
 
-void push2plane(const  std::vector<int16_t>& block, eudaq::StandardPlane& plane_raw, eudaq::StandardPlane& plane ){
+void push2plane(const  std::vector<int16_t>& block, eudaq::StandardPlane& plane_raw, eudaq::StandardPlane& plane,double charge=1.0 ){
     int64_t ts_high = 0;
     int64_t ts_low = 0;
     int64_t ts_full = 0;
@@ -167,14 +167,14 @@ void push2plane(const  std::vector<int16_t>& block, eudaq::StandardPlane& plane_
     if (5000  <=  block[i] && block[i] < 5099  ){
       //data_raw.push_back(block[i+1]);
       
-      push_data2plane(plane_raw, block[i] -5000 +1, block[i+1], ts_full);
+      push_data2plane(plane_raw, block[i] -5000 +1, block[i+1], ts_full,charge);
   //    std::cout << block[i] << "; " << block[i+1] << "\n";
     }
   
     if (6000  <=  block[i] && block[i] < 6099  ){
       //data_raw.push_back(block[i+1]);
       
-      push_data2plane(plane, block[i] -6000 +1, block[i+1], ts_full);
+      push_data2plane(plane, block[i] -6000 +1, block[i+1], ts_full,charge);
       //std::cout << block[i] << "; " << block[i+1] << "\n";
     }
   
@@ -201,16 +201,21 @@ bool Convert_bit(eudaq::EventSPC d1, eudaq::StdEventSP d2, eudaq::ConfigSPC conf
   
 
 
-  push2plane(currentData, plane_raw, plane);
-  push2plane(g_old_data[producerID], plane_raw, plane);
-
+  push2plane(currentData, plane_raw, plane,1.0);
+  
+  for (int i=0; i<g_old_data[producerID].size(); i++){
+    push2plane(g_old_data[producerID][i], plane_raw, plane,1.0 + g_old_data[producerID].size() - i);
+  }
 
 
   d2->AddPlane(plane);
-  d2->AddPlane(plane_raw);
+ // d2->AddPlane(plane_raw);
  
-  g_old_data[producerID] = currentData;
+  g_old_data[producerID].push_back(currentData);
 
+  while(g_old_data[producerID].size() > 10) {
+    g_old_data[producerID].erase(g_old_data[producerID].begin());
+  }
   return true;
 
 }
